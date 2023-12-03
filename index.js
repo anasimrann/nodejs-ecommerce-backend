@@ -4,11 +4,15 @@ const app = express();
 require("dotenv").config();
 const category = require("./Routes/CategoryRoutes");
 const product = require("./Routes/ProductRoutes");
+var cors = require("cors");
 
 DB();
 
 app.use(express.json());
-app.use("/category", category);
+
+app.use(cors());
+
+// app.use("/category", category);
 app.use("/product", product);
 let PORT = process.env.PORT || 5000;
 

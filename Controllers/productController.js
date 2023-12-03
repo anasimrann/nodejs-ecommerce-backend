@@ -11,6 +11,7 @@ const addProduct = async (req, res) => {
       price: req.body.price,
       quantity: req.body.quantity,
       category: req.body.category,
+      subCategory: req.body.subcategory,
     });
 
     await product.save();
@@ -51,9 +52,7 @@ const addProduct = async (req, res) => {
 const getOneProductDetails = async (req, res) => {
   try {
     let productId = req.params.id;
-    let productDetails = await Product.findById(productId)
-      .populate("category")
-      .populate("images");
+    let productDetails = await Product.findById(productId).populate("images");
     if (!productDetails) {
       return res.status(422).json({
         success: false,
@@ -94,6 +93,7 @@ const updateProduct = async (req, res) => {
     product.price = req.body.price;
     product.quantity = req.body.quantity;
     product.category = req.body.category;
+    product.subCategory = req.body.subcategory;
 
     // Handle images
     if (req.files && req.files.length > 0) {
@@ -130,9 +130,22 @@ const updateProduct = async (req, res) => {
 
 const browseProductsByCategory = async (req, res) => {
   try {
-    console.log(req.params.id);
-    let categoryId = req.params.id;
-    const products = await Product.find({ category: categoryId });
+    console.log(req.query);
+    let category = req.query.category;
+    let subcategory = req.query.subcategory;
+
+    let products = [];
+    if (category && subcategory) {
+      products = await Product.find({
+        $and: [{ category: category, subCategory: subcategory }],
+      });
+    } else {
+      console.log("i am hit");
+      products = await Product.find({
+        $or: [{ category: category }, { subCategory: subcategory }],
+      });
+    }
+
     if (!products) {
       return res.status(422).json({
         success: false,

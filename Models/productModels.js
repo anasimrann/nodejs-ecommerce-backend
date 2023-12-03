@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 const { Image } = require("./imageModel");
 const { Schema } = mongoose;
 
+const subCategoriesEnum = [
+  "bottom wear",
+  "top wear",
+  "foot wear",
+  "bags",
+  "null",
+];
+const category = ["men", "women", "null"];
 let productSchema = new Schema(
   {
     name: {
@@ -29,10 +37,19 @@ let productSchema = new Schema(
     },
 
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
+      type: String,
+      enum: category,
+      default: "null",
     },
+
+    subCategory: {
+      type: String,
+      enum: subCategoriesEnum,
+      default: "null",
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Category",
+    },
+
     images: [
       {
         type: mongoose.Schema.Types.ObjectId,
