@@ -12,7 +12,7 @@ const addProduct = async (req, res) => {
       quantity: req.body.quantity,
       type: req.body.type,
       category: req.body.category,
-      subCategory: req.body.subcategory,
+      subCategory: req.body.subCategory,
     });
 
     await product.save();
@@ -94,7 +94,7 @@ const updateProduct = async (req, res) => {
     product.price = req.body.price;
     product.quantity = req.body.quantity;
     product.category = req.body.category;
-    product.subCategory = req.body.subcategory;
+    product.subCategory = req.body.subCategory;
     product.type = req.body.type;
 
     // Handle images
