@@ -3,6 +3,7 @@ const { Image } = require("../Models/imageModel");
 
 const addProduct = async (req, res) => {
   try {
+    console.log(req.body);
     const timestampRandomness = Date.now();
     let product = new Product({
       name: req.body.name,
@@ -34,7 +35,8 @@ const addProduct = async (req, res) => {
       message: "Product added successfully",
     });
   } catch (err) {
-    console.log(err);
+    
+    console.log(err.message);
     if (err.code == 11000) {
       return res.status(422).json({
         success: false,
