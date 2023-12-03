@@ -35,7 +35,6 @@ const addProduct = async (req, res) => {
       message: "Product added successfully",
     });
   } catch (err) {
-    
     console.log(err.message);
     if (err.code == 11000) {
       return res.status(422).json({
@@ -134,7 +133,7 @@ const updateProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    let products = await Product.find();
+    let products = await Product.find().populate("images", "url");
     return res.status(200).json({
       success: false,
       data: products,
