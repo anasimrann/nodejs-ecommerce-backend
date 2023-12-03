@@ -6,10 +6,11 @@ const addProduct = async (req, res) => {
     const timestampRandomness = Date.now();
     let product = new Product({
       name: req.body.name,
-      slug: `${timestampRandomness}${req.body.slug}`,
+      slug: `${timestampRandomness}${req.body.name}`,
       description: req.body.description,
       price: req.body.price,
       quantity: req.body.quantity,
+      type: req.body.type,
       category: req.body.category,
       subCategory: req.body.subcategory,
     });
@@ -94,6 +95,7 @@ const updateProduct = async (req, res) => {
     product.quantity = req.body.quantity;
     product.category = req.body.category;
     product.subCategory = req.body.subcategory;
+    product.type = req.body.type;
 
     // Handle images
     if (req.files && req.files.length > 0) {

@@ -21,7 +21,9 @@ let productSchema = new Schema(
     slug: {
       type: String,
     },
-
+    type: {
+      type: String,
+    },
     description: {
       type: String,
       required: true,
