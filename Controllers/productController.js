@@ -130,6 +130,23 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const getAllProducts = async (req, res) => {
+  try {
+    let products = await Product.find();
+    return res.status(200).json({
+      success: false,
+      data: products,
+      message: [],
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      data: [],
+      mesasge: [err.message],
+    });
+  }
+};
+
 const browseProductsByCategory = async (req, res) => {
   try {
     console.log(req.query);
@@ -193,4 +210,5 @@ module.exports = {
   updateProduct,
   browseProductsByCategory,
   deleteProductById,
+  getAllProducts,
 };

@@ -5,6 +5,7 @@ const {
   updateProduct,
   browseProductsByCategory,
   deleteProductById,
+  getAllProducts,
 } = require("../Controllers/productController");
 const { upload } = require("../Middleware/multer");
 const router = express.Router();
@@ -13,6 +14,7 @@ router.post("/add", upload.array("photo"), addProduct);
 router.get("/details/:id", getOneProductDetails);
 router.put("/update/:id", upload.array("photo"), updateProduct);
 router.get("/browse/category", browseProductsByCategory);
+router.get("/get", getAllProducts);
 router.delete("/delete/:id", deleteProductById);
 
 module.exports = router;
