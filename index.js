@@ -5,9 +5,11 @@ require("dotenv").config();
 const category = require("./Routes/CategoryRoutes");
 const product = require("./Routes/ProductRoutes");
 var cors = require("cors");
+const bodyParser = require("body-parser");
 
 DB();
 
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.json());
 
 app.use(cors());
@@ -28,7 +30,7 @@ app.use((err, req, res, next) => {
   return res.status(422).json({
     success: false,
     data: [],
-    message: [err.message],
+    message: ["asd"],
   });
 });
 

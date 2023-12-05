@@ -1,9 +1,11 @@
 const { Product } = require("../Models/productModels");
 const { Image } = require("../Models/imageModel");
-
+const cloudinary = require("./cloudinary");
+const uploader = async(path)=> {
+  await cloudinary.uploads(path,'Products');
+}
 const addProduct = async (req, res) => {
   try {
-    console.log(req.body);
     const timestampRandomness = Date.now();
     let product = new Product({
       name: req.body.name,
@@ -20,11 +22,13 @@ const addProduct = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        let image = new Image({
-          url: file.originalname,
-        });
-        await image.save();
-        product.images.push(image._id);
+          const {path} = file
+          const newPath = await uploader(path);
+          let image = new Image({
+            url: result.url, // Use result.url instead of newPath.url
+          });
+          await image.save();
+          product.images.push(image._id);
       }
       await product.save();
     }
@@ -35,7 +39,6 @@ const addProduct = async (req, res) => {
       message: "Product added successfully",
     });
   } catch (err) {
-    console.log(err.message);
     if (err.code == 11000) {
       return res.status(422).json({
         success: false,
@@ -78,7 +81,6 @@ const getOneProductDetails = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    console.log(req.body);
     const productId = req.params.id;
     let product = await Product.findById(productId);
 
@@ -150,7 +152,6 @@ const getAllProducts = async (req, res) => {
 
 const browseProductsByCategory = async (req, res) => {
   try {
-    console.log(req.query);
     let category = req.query.category;
     let subcategory = req.query.subcategory;
 
@@ -160,7 +161,6 @@ const browseProductsByCategory = async (req, res) => {
         $and: [{ category: category, subCategory: subcategory }],
       });
     } else {
-      console.log("i am hit");
       products = await Product.find({
         $or: [{ category: category }, { subCategory: subcategory }],
       });
