@@ -6,10 +6,30 @@ const category = require("./Routes/CategoryRoutes");
 const product = require("./Routes/ProductRoutes");
 var cors = require("cors");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+
+const path = "./uploads";
+fs.access(path, (error) => {
+  // To check if the given directory
+  // already exists or not
+  if (error) {
+    // If current directory does not exist
+    // then create it
+    fs.mkdir(path, (error) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("New Directory created successfully !!");
+      }
+    });
+  } else {
+    console.log("Given Directory already exists !!");
+  }
+});
 
 DB();
 
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use(cors());
@@ -30,7 +50,7 @@ app.use((err, req, res, next) => {
   return res.status(422).json({
     success: false,
     data: [],
-    message: ["asd"],
+    message: [err.message],
   });
 });
 
