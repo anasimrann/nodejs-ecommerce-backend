@@ -3,10 +3,10 @@ const { Image } = require("./imageModel");
 const { Schema } = mongoose;
 
 const subCategoriesEnum = [
-  "bottom wear",
-  "top wear",
-  "foot wear",
-  "bags",
+  "bottomwear",
+  "topwear",
+  "footwear",
+  "bag",
   "null",
 ];
 const category = ["men", "women", "null"];
