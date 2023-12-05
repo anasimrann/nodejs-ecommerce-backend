@@ -1,9 +1,8 @@
 const { Product } = require("../Models/productModels");
 const { Image } = require("../Models/imageModel");
-const cloudinary = require("./cloudinary");
-const uploader = async(path)=> {
-  await cloudinary.uploads(path,'Products');
-}
+const { uploads } = require("../cloudinary");
+const fs = require("fs");
+
 const addProduct = async (req, res) => {
   try {
     const timestampRandomness = Date.now();
@@ -22,13 +21,13 @@ const addProduct = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-          const {path} = file
-          const newPath = await uploader(path);
-          let image = new Image({
-            url: result.url, // Use result.url instead of newPath.url
-          });
-          await image.save();
-          product.images.push(image._id);
+        const result = await uploads(file.path);
+        let image = new Image({
+          url: result.url,
+        });
+        await image.save();
+        product.images.push(image._id);
+        fs.unlinkSync(file.path);
       }
       await product.save();
     }
@@ -204,8 +203,27 @@ const deleteProductById = async (req, res) => {
     });
   }
 };
+// const uploadImage = async (req, res) => {
+//   // Use the uploaded file's name as the asset's public ID and
+//   // allow overwriting the asset with new versions
+
+//   try {
+//     console.log(req.file);
+//     // Upload the image
+//     const result = await uploads(req.file.path);
+//     console.log(result);
+//     fs.unlinkSync(req.file.path);
+//     return res.status(200).json({
+//       success: true,
+//       data: result,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
 
 module.exports = {
+  // uploadImage,
   addProduct,
   getOneProductDetails,
   updateProduct,
