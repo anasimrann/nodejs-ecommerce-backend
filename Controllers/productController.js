@@ -158,11 +158,11 @@ const browseProductsByCategory = async (req, res) => {
     if (category && subcategory) {
       products = await Product.find({
         $and: [{ category: category, subCategory: subcategory }],
-      });
+      }).populate("images","url");
     } else {
       products = await Product.find({
         $or: [{ category: category }, { subCategory: subcategory }],
-      });
+      }).populate("images","url");
     }
 
     if (!products) {
