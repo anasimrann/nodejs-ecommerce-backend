@@ -150,9 +150,10 @@ const getAllProducts = async (req, res) => {
 };
 
 const browseProductsByCategory = async (req, res) => {
+
   try {
-    let category = req.query.category;
-    let subcategory = req.query.subcategory;
+    let category =  req.params?.category;
+    let subcategory = req.params?.subcategory;
 
     let products = [];
     if (category && subcategory) {
@@ -185,6 +186,7 @@ const browseProductsByCategory = async (req, res) => {
     });
   }
 };
+
 
 const deleteProductById = async (req, res) => {
   try {

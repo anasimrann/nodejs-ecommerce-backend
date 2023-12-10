@@ -7,6 +7,7 @@ const product = require("./Routes/ProductRoutes");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
+const { exec } = require("child_process");
 
 const path = "./uploads";
 fs.access(path, (error) => {
@@ -53,6 +54,15 @@ app.use((err, req, res, next) => {
     message: [err.message],
   });
 });
+
+
+app.get('/model',(req,res)=>{
+  exec('python algo.py 70 canny 88',(err,stdout,stderr)=>{
+
+    const response  =  stdout
+    res.send(response)
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`server is running at PORT ${PORT}`);
