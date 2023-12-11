@@ -57,7 +57,7 @@ app.use((err, req, res, next) => {
 
 
 app.get('/model',(req,res)=>{
-  exec('python algo.py 70 canny 88',(err,stdout,stderr)=>{
+  exec('python finalpipeline.py 70 canny 88',(err,stdout,stderr)=>{
 
     const response  =  stdout
     res.send(response)
