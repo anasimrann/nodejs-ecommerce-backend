@@ -7,17 +7,21 @@ Original file is located at
     https://colab.research.google.com/drive/1w7YVvipKDkemHDHfBAqwwdCV5ZSEwpEQ
 """
 
+import sys
 # Commented out IPython magic to ensure Python compatibility.
+from PIL import Image
 import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import tensorflow as tf
-from PIL import Image
-from tensorflow.keras.models import load_model
-from tensorflow.keras.applications import resnet
+from keras.models import load_model
+from keras.applications import resnet
 import matplotlib.pyplot as plt
 from skimage import io
+import torch
+import time
+import json
 # %cd C:\Users\Dell\Downloads\yolov5
 # %matplotlib inline
 
@@ -26,11 +30,6 @@ LOADED_CSVS = dict()
 TARGET_SHAPE = (224,224,3)
 
 # Commented out IPython magic to ensure Python compatibility.
-from PIL import Image
-import numpy as np
-import matplotlib.pyplot as plt
-import torch
-from PIL import Image
 # from detect import generate_bbox  # Import the generate_bbox function
 # %matplotlib inline
 
@@ -74,7 +73,7 @@ def load_models():
     if len(LOADED_MODELS) == 5:
         return True
     else:
-        print("Loading Models...")
+        # print("Loading Models...")
         try:
             GENDER_CLASSIFIER = load_model(r"./recommendation_assets/embedding/gender_classification_modell.h5")        
             TOPWEAR_EMBEDDING = load_model(r"./recommendation_assets/embedding/topwear_embedding.h5")
@@ -88,7 +87,7 @@ def load_models():
             LOADED_MODELS["footwear"] = FOOTWEAR_EMBEDDING
             LOADED_MODELS["bag"] = BAG_EMBEDDING
 
-            print("All models loaded successfully!")
+            # print("All models loaded successfully!")
             return True
         except Exception as e:
             print("Error loading models:", e)
@@ -102,7 +101,7 @@ def load_CSVs():
     if len(LOADED_CSVS) == 7:
         return True
     else:
-        print("Loading CSVs...")
+        # print("Loading CSVs...")
         MENS_TOPWEAR_CSV = pd.read_csv(r"./recommendation_assets/CSVS/mens_topwear_embedding.csv")
         MENS_BOTTOMWEAR_CSV = pd.read_csv(r"./recommendation_assets/CSVS/mens_bottomwear_embedding.csv")
         MENS_FOOTWEAR_CSV = pd.read_csv(r"./recommendation_assets/CSVS/mens_footwear_embedding.csv")
@@ -118,7 +117,7 @@ def load_CSVs():
         LOADED_CSVS["womens_bottomwear"] = WOMENS_BOTTOMWEAR_CSV
         LOADED_CSVS["womens_footwear"] = WOMENS_FOOTWEAR_CSV
         LOADED_CSVS["womens_bag"] = WOMENS_BAG_CSV
-        print("CSVs Loaded!")
+        # print("CSVs Loaded!")
         return True
 
 
@@ -221,31 +220,55 @@ def generate_embedding(outputs, detected_objects):
     return outputs
 
 def __get__(csv_file, query):
-    """
-    Plot Top 10 similar products for each category along with the Product Link.
-    """
-    csv_file['distance'] = csv_file['embedding'].apply(lambda x: np.linalg.norm(np.asarray(eval(x), dtype=np.float32) - np.asarray(query, dtype=np.float32)))
+    csv_file['distance'] = csv_file['embedding'].apply(
+        lambda x: np.linalg.norm(np.asarray(eval(x), dtype=np.float32) - np.asarray(query, dtype=np.float32)))
     csv_file = csv_file.sort_values(by='distance').reset_index(drop=True)
-    result = csv_file.iloc[:8][['product_url', 'image_url']].to_dict('records')
-    for i, row in csv_file.iloc[:8].iterrows():
-        plt.figure(figsize=(16,9))
-        image = io.imread("..\\"+row["image_path"])
-        plt.imshow(image);plt.axis("off");plt.show()
-        print("Shop Now @ ", row["product_url"])
-        print(254*"=")
-    return result
+    
+    products = []
+    
+    for i, row in csv_file.iloc[:10].iterrows():
+        image_path = "..\\" + row["image_path"]
+        image_name = os.path.splitext(os.path.basename(row["image_path"]))[0]  # Remove extension
+        
+        # Additional information
+        description = row["description"]
+        subCategory = row["subCategory"]
+        product_url = row["product_url"]
+        img_url = row["image_url"]
+        category = row["category"]
+
+        products.append({
+            'name': image_name,
+            'image_path': img_url,  # Full image path
+            'img': os.path.basename(image_path),  # Basename of the image
+            'subCategory': subCategory,
+            'description': description,
+            'url': product_url,
+            'category': category
+        })
+
+    # result = {'products': products}
+
+    # Convert the result dictionary to JSON-formatted string
+    json_result = json.dumps(products,indent=2)
+    # print(json_result)
+
+    return products
 
 def get_results(outputs, gender, detected_objects):
     """
     Get Similar products for a given input containing query product.
     """
-    dict_results = dict()
+    # dict_results = dict()
+    response = {}
     for output in detected_objects:
         csv_file = gender + "_" + output
         csv_file = LOADED_CSVS[csv_file].copy(deep=True)
         query = outputs[output+"_embedding"]
-        dict_results[output] = __get__(csv_file, query)
-    return dict_results
+        # dict_results[output] = __get__(csv_file, query)
+        response[output] = __get__(csv_file, query)
+        # print(output)
+    return response
 
 def final(images):
     """
@@ -263,7 +286,13 @@ def final(images):
             plot_clothes(**outputs)
             outputs = generate_embedding(outputs, detected_objects)
             results = get_results(outputs, gender, detected_objects)
+            print(json.dumps(results))
 
-img_path = r"./recommendation_assets/1702073747521-105.JPG"
-final(img_path)
+if len(sys.argv) > 1:
+    img_path = sys.argv[1]
+    if img_path:
+        final(img_path)
+else:
+    print("Error: Missing command-line argument for image path.")
+    
 

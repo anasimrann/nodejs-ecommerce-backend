@@ -4,6 +4,7 @@ const app = express();
 require("dotenv").config();
 const category = require("./Routes/CategoryRoutes");
 const product = require("./Routes/ProductRoutes");
+const model = require("./Routes/MLRoutes");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -45,6 +46,7 @@ app.use(cors());
 
 // app.use("/category", category);
 app.use("/product", product);
+app.use("/ml", model);
 let PORT = process.env.PORT || 5000;
 
 app.use((err, req, res, next) => {
@@ -55,14 +57,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-app.get('/model',(req,res)=>{
-  exec('python finalpipeline.py 70 canny 88',(err,stdout,stderr)=>{
-
-    const response  =  stdout
-    res.send(response)
-  })
-})
+app.post("/model", (req, res) => {
+  const { path } = req.body;
+  if (path) {
+    exec(`python finalpipeline.py ${path}`, (err, stdout, stderr) => {
+      const response = stdout;
+      res.send(response);
+    });
+  }
+  else{
+    res.send('Please provide the file path')
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`server is running at PORT ${PORT}`);
